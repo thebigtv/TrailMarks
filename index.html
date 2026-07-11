@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- MailerLite Universal -->
+<!-- MailerLite Universal -->
 <script>
     (function(w,d,e,u,f,l,n){w[f]=w[f]||function(){(w[f].q=w[f].q||[])
     .push(arguments);},l=d.createElement(e),l.async=1,l.src=u,
@@ -15,287 +15,835 @@
 <!-- End MailerLite Universal -->
 
 <title>TrailMarks | Walk the Wall. Collect the Route.</title>
-
-<meta name="description" content="Join the waiting list for TrailMarks, a new collectible experience inspired by Hadrian's Wall.">
+<meta name="description" content="TrailMarks: eight collectible metal marks, one continuous route across Hadrian's Wall. Join the waiting list.">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
 <style>
-
+/* ============================================================
+   TRAILMARKS — DESIGN TOKENS
+   Weathered stone, oxidised bronze, iron. Not clay-and-cream.
+   ============================================================ */
 :root{
---bg:#f5f1ea;
---card:#ffffff;
---text:#2a2825;
---accent:#8a7252;
---border:#e4dbcf;
+  --stone:        #eee7d8;   /* pale limestone — base bg */
+  --stone-dark:   #e2d8c3;   /* deeper parchment for panels */
+  --ink:          #211d18;   /* near-black warm ink */
+  --ink-soft:     #4c453a;   /* secondary text */
+  --bronze:       #8a5a34;   /* oxidised bronze — primary accent */
+  --bronze-light: #b98650;   /* highlight bronze */
+  --iron:         #4b5259;   /* weathered iron / slate */
+  --iron-dark:    #2a2e33;   /* deep iron — dramatic sections */
+  --moss:         #5c6a4d;   /* lichen / turf green */
+  --gold:         #cda23f;   /* medal gold */
+  --line:         #cdbfa2;   /* hairline rule */
+  --paper:        #f7f2e7;   /* lightest surface, cards */
+
+  --serif: 'Cormorant Garamond', serif;
+  --sans: 'Inter', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
 }
 
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-}
-
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
 body{
-font-family:'Inter',sans-serif;
-background:var(--bg);
-color:var(--text);
-line-height:1.7;
+  font-family:var(--sans);
+  background:var(--stone);
+  color:var(--ink);
+  line-height:1.7;
+  overflow-x:hidden;
+}
+img{max-width:100%;display:block;}
+a{color:inherit;text-decoration:none;}
+button{font-family:inherit;cursor:pointer;}
+
+::selection{background:var(--bronze);color:var(--paper);}
+
+.eyebrow{
+  font-family:var(--mono);
+  font-size:.72rem;
+  letter-spacing:.24em;
+  text-transform:uppercase;
+  color:var(--bronze);
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+}
+.eyebrow::before{
+  content:'';
+  width:22px;height:1px;
+  background:var(--bronze);
+  display:inline-block;
 }
 
+.wrap{max-width:1180px;margin:0 auto;padding:0 32px;}
+
+h1,h2,h3{font-family:var(--serif);font-weight:600;color:var(--ink);}
+
+.reveal{
+  opacity:0;
+  transform:translateY(28px);
+  transition:opacity .9s cubic-bezier(.16,.8,.24,1), transform .9s cubic-bezier(.16,.8,.24,1);
+}
+.reveal.is-visible{opacity:1;transform:translateY(0);}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.01ms !important; transition-duration:.01ms !important;}
+  html{scroll-behavior:auto;}
+}
+
+/* ============================================================
+   NAV
+   ============================================================ */
+.nav{
+  position:fixed; top:0; left:0; right:0; z-index:100;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:22px 40px;
+  mix-blend-mode:difference;
+}
+.nav-mark{
+  font-family:var(--serif); font-weight:700; font-size:1.15rem;
+  letter-spacing:.02em; color:#f7f2e7;
+}
+.nav-cta{
+  font-family:var(--mono); font-size:.7rem; letter-spacing:.14em; text-transform:uppercase;
+  color:#f7f2e7; border:1px solid rgba(247,242,231,.5); padding:9px 18px; border-radius:100px;
+  transition:background .3s ease, color .3s ease;
+}
+.nav-cta:hover{background:#f7f2e7; color:var(--ink);}
+
+/* progress thread up top */
+.progress-thread{
+  position:fixed; top:0; left:0; height:2px; background:var(--bronze-light);
+  z-index:101; width:0%; transition:width .1s linear;
+}
+
+/* ============================================================
+   HERO
+   ============================================================ */
 .hero{
-padding:100px 20px 60px;
-text-align:center;
-max-width:1100px;
-margin:auto;
+  position:relative;
+  height:100svh; min-height:640px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; overflow:hidden;
+  background:
+    radial-gradient(120% 90% at 50% 0%, #3a3327 0%, transparent 55%),
+    linear-gradient(180deg, #201c17 0%, #35302a 38%, #57503f 62%, #8d7a56 82%, #cdb87f 100%);
+}
+.hero-sky-glow{
+  position:absolute; inset:0;
+  background: radial-gradient(60% 40% at 50% 8%, rgba(205,162,63,.28), transparent 70%);
+  pointer-events:none;
+}
+.hero-ridge{
+  position:absolute; left:0; right:0; bottom:0; width:100%;
+  height:42%;
+}
+.hero-content{position:relative; z-index:3; padding:0 24px; max-width:880px;}
+.hero-eyebrow{
+  font-family:var(--mono); font-size:.72rem; letter-spacing:.3em; text-transform:uppercase;
+  color:#e8d8ac; margin-bottom:26px; opacity:.9;
+}
+.hero h1{
+  font-size:clamp(3.1rem, 8vw, 6.4rem);
+  line-height:.96; color:#faf5e8;
+  text-shadow:0 8px 40px rgba(0,0,0,.35);
+  font-style:italic;
+}
+.hero h1 em{
+  font-style:normal; color:#e8d8ac;
+}
+.hero-sub{
+  margin:26px auto 40px; max-width:560px;
+  color:#e5dcc4; font-size:1.08rem; font-weight:300;
+}
+.hero-ctas{display:flex; gap:16px; justify-content:center; flex-wrap:wrap;}
+.btn{
+  font-family:var(--mono); font-size:.72rem; letter-spacing:.14em; text-transform:uppercase;
+  padding:16px 30px; border-radius:100px; border:1px solid transparent;
+  transition:transform .35s cubic-bezier(.16,.8,.24,1), background .3s ease, border-color .3s ease, color .3s ease;
+  display:inline-block;
+}
+.btn-primary{background:#faf5e8; color:var(--ink);}
+.btn-primary:hover{transform:translateY(-3px); background:var(--bronze-light); color:#faf5e8;}
+.btn-ghost{border-color:rgba(250,245,232,.55); color:#faf5e8;}
+.btn-ghost:hover{transform:translateY(-3px); border-color:#faf5e8; background:rgba(250,245,232,.08);}
+
+.scroll-cue{
+  position:absolute; bottom:34px; left:50%; transform:translateX(-50%);
+  z-index:3; display:flex; flex-direction:column; align-items:center; gap:10px;
+}
+.scroll-cue span{
+  font-family:var(--mono); font-size:.62rem; letter-spacing:.2em; text-transform:uppercase; color:#e8d8ac;
+}
+.scroll-cue .line{
+  width:1px; height:46px; background:linear-gradient(180deg, #e8d8ac, transparent);
+  position:relative; overflow:hidden;
+}
+.scroll-cue .line::after{
+  content:''; position:absolute; top:-46px; left:0; width:100%; height:46px;
+  background:linear-gradient(180deg, transparent, #faf5e8);
+  animation:cue-drop 2.2s ease-in-out infinite;
+}
+@keyframes cue-drop{ to{ top:46px; } }
+
+/* ============================================================
+   INTRO STRIP — bridges hero to collection
+   ============================================================ */
+.intro{
+  padding:130px 0 100px;
+  text-align:center;
+}
+.intro-coords{
+  font-family:var(--mono); font-size:.72rem; letter-spacing:.18em; color:var(--bronze);
+  margin-bottom:28px;
+}
+.intro p{
+  font-family:var(--serif); font-style:italic; font-weight:500;
+  font-size:clamp(1.5rem, 3vw, 2.3rem); color:var(--ink);
+  max-width:800px; margin:0 auto; line-height:1.4;
+}
+.intro p span{color:var(--bronze);}
+
+/* ============================================================
+   THE COLLECTION
+   ============================================================ */
+.collection{padding:60px 0 160px; position:relative;}
+.section-head{max-width:640px; margin:0 auto 70px; text-align:center;}
+.section-head h2{font-size:clamp(2.4rem,4.2vw,3.4rem); margin:18px 0 16px; font-style:italic;}
+.section-head p{color:var(--ink-soft); font-size:1.02rem; max-width:520px; margin:0 auto;}
+.section-head.left{text-align:left; margin-left:0;}
+
+.route-rail{
+  position:relative;
+  padding:0 0 40px;
+}
+.route-line-svg{
+  width:100%; height:60px; display:block;
+}
+.tags-scroller{
+  display:flex; gap:22px;
+  overflow-x:auto; scroll-snap-type:x proximity;
+  padding:10px 32px 30px;
+  margin:0 -32px;
+  scrollbar-width:thin; scrollbar-color:var(--bronze) transparent;
+}
+.tags-scroller::-webkit-scrollbar{height:5px;}
+.tags-scroller::-webkit-scrollbar-thumb{background:var(--line); border-radius:4px;}
+
+.tag-card{
+  flex:0 0 auto; width:206px; scroll-snap-align:start;
+  display:flex; flex-direction:column; align-items:center;
+  transition:transform .5s cubic-bezier(.16,.8,.24,1);
+}
+.tag-card:hover{transform:translateY(-10px);}
+.tag-metal{
+  position:relative; width:100%; aspect-ratio:5/7.4;
+  filter:drop-shadow(0 18px 26px rgba(33,29,24,.22));
+  transition:filter .4s ease;
+}
+.tag-card:hover .tag-metal{filter:drop-shadow(0 26px 34px rgba(33,29,24,.3));}
+.tag-metal svg{width:100%; height:100%;}
+.tag-caption{margin-top:18px; text-align:center;}
+.tag-caption .num{
+  font-family:var(--mono); font-size:.68rem; letter-spacing:.16em; color:var(--bronze);
+}
+.tag-caption h4{
+  font-family:var(--serif); font-size:1.28rem; font-weight:600; margin-top:4px;
+}
+.tag-caption .coords{
+  font-family:var(--mono); font-size:.62rem; letter-spacing:.06em; color:var(--ink-soft); margin-top:6px; opacity:.75;
 }
 
-.logo{
-font-size:0.85rem;
-letter-spacing:4px;
-text-transform:uppercase;
-color:var(--accent);
-margin-bottom:20px;
-font-weight:600;
+/* ============================================================
+   DISPLAY FRAME
+   ============================================================ */
+.frame-section{
+  background:var(--stone-dark);
+  padding:150px 0;
+}
+.frame-grid{
+  display:grid; grid-template-columns:1fr 1fr; gap:70px; align-items:center;
+}
+.frame-copy .section-head{margin:0 0 30px; text-align:left;}
+.frame-copy p{color:var(--ink-soft); margin-bottom:14px; max-width:440px;}
+.frame-mount{
+  background:linear-gradient(155deg,#3b3128,#241f19 60%);
+  border-radius:6px;
+  padding:38px;
+  box-shadow:0 30px 60px rgba(33,29,24,.28), inset 0 0 0 1px rgba(255,255,255,.04);
+}
+.frame-inner{
+  background:var(--paper);
+  border-radius:2px;
+  padding:34px 20px;
+  display:grid; grid-template-columns:repeat(4,1fr); gap:16px;
+  box-shadow:inset 0 0 30px rgba(33,29,24,.08);
+}
+.frame-inner .mini-tag{width:100%; aspect-ratio:5/7.4;}
+.frame-inner .mini-tag svg{width:100%; height:100%; filter:drop-shadow(0 6px 8px rgba(33,29,24,.18));}
+
+@media (max-width:860px){
+  .frame-grid{grid-template-columns:1fr; gap:44px;}
 }
 
-h1{
-font-family:'Cormorant Garamond',serif;
-font-size:clamp(3.5rem,8vw,6rem);
-line-height:0.95;
-margin-bottom:20px;
-font-weight:600;
+/* ============================================================
+   HOW IT WORKS
+   ============================================================ */
+.how{padding:150px 0;}
+.how-grid{
+  display:grid; grid-template-columns:repeat(3,1fr); gap:1px;
+  background:var(--line); border-radius:14px; overflow:hidden;
+}
+.how-card{
+  background:var(--paper); padding:52px 40px; position:relative;
+}
+.how-card .step-num{
+  font-family:var(--serif); font-style:italic; font-size:3.6rem; color:var(--line);
+  line-height:1; margin-bottom:22px;
+}
+.how-card h3{font-size:1.5rem; margin-bottom:12px;}
+.how-card p{color:var(--ink-soft); font-size:.96rem;}
+.how-card .icon{margin-bottom:20px;}
+
+@media (max-width:820px){
+  .how-grid{grid-template-columns:1fr;}
 }
 
-.subtitle{
-font-size:1.25rem;
-max-width:750px;
-margin:auto;
-opacity:.9;
+/* ============================================================
+   DIGITAL JOURNEY
+   ============================================================ */
+.journey{
+  background:var(--iron-dark); color:#f2ede0;
+  padding:150px 0;
+}
+.journey .eyebrow{color:var(--gold);}
+.journey .eyebrow::before{background:var(--gold);}
+.journey-grid{display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:center;}
+.journey-copy h2{color:#f7f2e7; font-size:clamp(2.2rem,4vw,3rem); margin:18px 0 22px; font-style:italic;}
+.journey-copy p{color:#c8c2b3; margin-bottom:16px; max-width:440px;}
+.journey-list{margin-top:30px; display:flex; flex-direction:column; gap:16px;}
+.journey-list li{
+  list-style:none; display:flex; gap:14px; align-items:flex-start;
+  font-size:.92rem; color:#e5dfd0;
+}
+.journey-list li::before{
+  content:''; width:6px; height:6px; margin-top:8px; flex:0 0 auto;
+  background:var(--gold); border-radius:50%;
 }
 
-.image-wrap{
-max-width:1200px;
-margin:0 auto;
-padding:20px;
+.phone-mock{
+  justify-self:center;
+  width:280px; height:568px;
+  background:#161311;
+  border-radius:36px;
+  padding:12px;
+  box-shadow:0 40px 80px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.06);
+}
+.phone-screen{
+  width:100%; height:100%; border-radius:26px; overflow:hidden;
+  background:linear-gradient(180deg,#f7f2e7,#ece3cf);
+  padding:22px 18px; color:var(--ink); display:flex; flex-direction:column;
+}
+.phone-screen .p-label{font-family:var(--mono); font-size:.58rem; letter-spacing:.14em; text-transform:uppercase; color:var(--bronze); margin-bottom:6px;}
+.phone-screen h5{font-family:var(--serif); font-size:1.2rem; margin-bottom:14px;}
+.p-progress{display:flex; gap:5px; margin-bottom:22px;}
+.p-progress i{flex:1; height:5px; border-radius:3px; background:var(--line);}
+.p-progress i.done{background:var(--bronze);}
+.p-gallery{display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-bottom:18px;}
+.p-gallery div{aspect-ratio:1; border-radius:6px; background:linear-gradient(135deg,#cdbfa2,#a99a78);}
+.p-stamp{
+  margin-top:auto; border:1px dashed var(--bronze); border-radius:10px;
+  padding:12px; text-align:center; font-family:var(--mono); font-size:.58rem;
+  letter-spacing:.1em; color:var(--bronze); text-transform:uppercase;
 }
 
-.hero-image{
-width:100%;
-border-radius:24px;
-box-shadow:0 20px 50px rgba(0,0,0,.12);
+@media (max-width:860px){
+  .journey-grid{grid-template-columns:1fr; gap:56px;}
+  .phone-mock{width:240px; height:488px;}
 }
 
-.section{
-max-width:1100px;
-margin:auto;
-padding:80px 20px;
+/* ============================================================
+   FRONTIER MEDAL
+   ============================================================ */
+.medal-section{
+  position:relative; padding:180px 0;
+  background:radial-gradient(90% 70% at 50% 0%, #2c2620 0%, #17140f 60%, #0e0c09 100%);
+  text-align:center; overflow:hidden;
 }
-
-.section-title{
-text-align:center;
-margin-bottom:50px;
+.medal-glow{
+  position:absolute; top:10%; left:50%; transform:translateX(-50%);
+  width:700px; height:700px; border-radius:50%;
+  background:radial-gradient(circle, rgba(205,162,63,.18), transparent 70%);
+  pointer-events:none;
 }
-
-.section-title h2{
-font-family:'Cormorant Garamond',serif;
-font-size:3rem;
-margin-bottom:15px;
+.medal-section .eyebrow{color:var(--gold); justify-content:center;}
+.medal-section .eyebrow::before{background:var(--gold);}
+.medal-svg{width:220px; margin:40px auto; filter:drop-shadow(0 20px 50px rgba(205,162,63,.25));}
+.medal-section h2{
+  color:#f7f2e7; font-size:clamp(2.4rem,5vw,3.8rem); font-style:italic; max-width:760px; margin:0 auto 24px;
 }
+.medal-section p{color:#c8c2b3; max-width:520px; margin:0 auto; font-size:1.02rem;}
 
-.grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-gap:25px;
-}
-
-.card{
-background:white;
-padding:35px;
-border-radius:20px;
-box-shadow:0 8px 20px rgba(0,0,0,.04);
-}
-
-.card h3{
-margin-bottom:10px;
-}
-
+/* ============================================================
+   WAITLIST
+   ============================================================ */
+.waitlist-section{padding:160px 0;}
 .waitlist{
-max-width:750px;
-margin:auto;
-background:white;
-padding:50px;
-border-radius:24px;
-box-shadow:0 10px 25px rgba(0,0,0,.06);
-text-align:center;
+  max-width:640px; margin:0 auto; text-align:center;
+  background:var(--paper); border-radius:20px; padding:64px 48px;
+  box-shadow:0 30px 70px rgba(33,29,24,.1);
+  position:relative;
 }
-
-.waitlist h2{
-font-family:'Cormorant Garamond',serif;
-font-size:3rem;
-margin-bottom:15px;
+.waitlist::before{
+  content:''; position:absolute; top:-1px; left:50%; transform:translateX(-50%);
+  width:60px; height:2px; background:var(--bronze);
 }
+.waitlist h2{font-size:clamp(2.2rem,4vw,2.9rem); margin:18px 0 16px; font-style:italic;}
+.waitlist > p{color:var(--ink-soft); margin-bottom:34px; max-width:440px; margin-left:auto; margin-right:auto;}
+.ml-embed-wrap{padding:6px 0 8px;}
+.gdpr{font-family:var(--mono); font-size:.68rem; letter-spacing:.03em; color:var(--ink-soft); opacity:.75; margin-top:22px; max-width:420px; margin-left:auto; margin-right:auto;}
 
-.waitlist p{
-margin-bottom:30px;
-}
-
-.faq{
-max-width:900px;
-margin:auto;
-}
-
+/* ============================================================
+   FAQ
+   ============================================================ */
+.faq-section{padding:60px 0 160px;}
+.faq-list{max-width:760px; margin:0 auto;}
 .faq-item{
-background:white;
-padding:25px;
-border-radius:18px;
-margin-bottom:15px;
+  border-bottom:1px solid var(--line);
 }
+.faq-q{
+  width:100%; background:none; border:none; text-align:left;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:26px 4px; font-family:var(--serif); font-size:1.25rem; color:var(--ink);
+}
+.faq-q .plus{
+  font-family:var(--mono); font-size:1.1rem; color:var(--bronze); transition:transform .35s ease;
+}
+.faq-item.open .faq-q .plus{transform:rotate(45deg);}
+.faq-a{
+  max-height:0; overflow:hidden; transition:max-height .5s cubic-bezier(.16,.8,.24,1);
+}
+.faq-a p{padding:0 4px 26px; color:var(--ink-soft); max-width:600px;}
 
+/* ============================================================
+   FOOTER
+   ============================================================ */
 footer{
-text-align:center;
-padding:60px 20px;
-border-top:1px solid var(--border);
-margin-top:60px;
+  background:var(--iron-dark); color:#c8c2b3; padding:80px 0 40px;
+}
+.footer-top{
+  display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:40px;
+  padding-bottom:50px; border-bottom:1px solid rgba(255,255,255,.1);
+}
+.footer-mark{font-family:var(--serif); font-size:1.6rem; color:#f7f2e7; font-style:italic;}
+.footer-mark span{display:block; font-family:var(--mono); font-style:normal; font-size:.62rem; letter-spacing:.2em; text-transform:uppercase; color:var(--gold); margin-top:8px;}
+.footer-links{display:flex; gap:50px; flex-wrap:wrap;}
+.footer-col h5{font-family:var(--mono); font-size:.64rem; letter-spacing:.14em; text-transform:uppercase; color:#8b8576; margin-bottom:14px;}
+.footer-col a{display:block; font-size:.92rem; color:#d9d4c5; margin-bottom:10px;}
+.footer-bottom{
+  padding-top:30px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px;
+  font-family:var(--mono); font-size:.68rem; letter-spacing:.04em; color:#7a7466;
 }
 
-footer h3{
-font-family:'Cormorant Garamond',serif;
-font-size:2rem;
-margin-bottom:10px;
+@media (max-width:640px){
+  .wrap{padding:0 22px;}
+  .nav{padding:18px 22px;}
+  .frame-inner{grid-template-columns:repeat(2,1fr);}
 }
-
-@media(max-width:768px){
-
-h1{
-font-size:3.5rem;
-}
-
-.waitlist{
-padding:35px 25px;
-}
-
-}
-
 </style>
 </head>
 <body>
 
+<div class="progress-thread" id="progressThread"></div>
+
+<nav class="nav">
+  <div class="nav-mark">TrailMarks</div>
+  <a href="#waitlist" class="nav-cta">Join the waiting list</a>
+</nav>
+
+<!-- ============================================================
+     HERO
+     ============================================================ -->
 <section class="hero">
-
-<div class="logo">
-TRAILMARKS
-</div>
-
-<h1>
-Walk the Wall.<br>
-Collect the Route.
-</h1>
-
-<p class="subtitle">
-A new collectible experience inspired by Hadrian's Wall. Collect a unique TrailMark for each section of the journey and build the complete route from coast to coast.
-</p>
-
+  <div class="hero-sky-glow"></div>
+  <svg class="hero-ridge" viewBox="0 0 1440 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,220 C160,160 260,260 420,200 C560,150 640,240 780,190 C920,140 1000,230 1160,180 C1300,140 1380,200 1440,180 L1440,400 L0,400 Z" fill="#1c1812" opacity="0.9"/>
+    <path d="M0,280 C180,240 300,300 480,260 C640,225 760,290 900,250 C1060,205 1180,270 1320,245 C1380,235 1410,250 1440,245 L1440,400 L0,400 Z" fill="#100d09"/>
+  </svg>
+  <div class="hero-content">
+    <div class="hero-eyebrow">Hadrian's Wall Collection — No. I</div>
+    <h1>Walk the wall.<br><em>Collect the route.</em></h1>
+    <p class="hero-sub">Eight landmarks. Eight cast-metal TrailMarks. One continuous line across eighty miles of frontier — carried in your pocket, mounted on your wall.</p>
+    <div class="hero-ctas">
+      <a href="#waitlist" class="btn btn-primary">Join the waiting list</a>
+      <a href="#collection" class="btn btn-ghost">Explore the collection</a>
+    </div>
+  </div>
+  <div class="scroll-cue"><span>Scroll</span><div class="line"></div></div>
 </section>
 
-<div class="image-wrap">
-
-<img src="F948567E-9C74-4415-9A5B-A841CDCAD236.PNG"
-alt="TrailMarks Hadrian's Wall Collection"
-class="hero-image">
-
-</div>
-
-<section class="section">
-
-<div class="section-title">
-
-<h2>How It Works</h2>
-
-<p>More than a souvenir. A journey you can collect.</p>
-
-</div>
-
-<div class="grid">
-
-<div class="card">
-<h3>🥾 Walk</h3>
-<p>Complete each stage of the Hadrian's Wall Path.</p>
-</div>
-
-<div class="card">
-<h3>📍 Collect</h3>
-<p>Earn a TrailMark inspired by that section of the route.</p>
-</div>
-
-<div class="card">
-<h3>🏆 Complete</h3>
-<p>Connect all eight pieces and unlock the exclusive Frontier Medal.</p>
-</div>
-
-</div>
-
+<!-- ============================================================
+     INTRO STRIP
+     ============================================================ -->
+<section class="intro wrap">
+  <div class="intro-coords reveal">54.9800° N &mdash; 2.1500° W · Coast to coast</div>
+  <p class="reveal">Every walker leaves the wall with a story.<br><span>TrailMarks is where that story becomes something you can hold.</span></p>
 </section>
 
-<section class="section">
+<!-- ============================================================
+     THE COLLECTION
+     ============================================================ -->
+<section class="collection wrap" id="collection">
+  <div class="section-head reveal">
+    <div class="eyebrow">The Collection</div>
+    <h2>Eight marks. One frontier.</h2>
+    <p>Each TrailMark is cast to represent a single landmark on the route — not a stage number, but a place worth stopping for. Collect them in order and the route draws itself.</p>
+  </div>
 
-<div class="waitlist">
+  <div class="route-rail reveal">
+    <svg class="route-line-svg" viewBox="0 0 1600 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path id="routePath" d="M20,30 C200,10 260,50 440,30 C620,10 680,50 860,30 C1040,10 1100,50 1280,30 C1400,18 1480,40 1580,30"
+        fill="none" stroke="#cdbfa2" stroke-width="2" stroke-linecap="round"/>
+      <path id="routePathDraw" d="M20,30 C200,10 260,50 440,30 C620,10 680,50 860,30 C1040,10 1100,50 1280,30 C1400,18 1480,40 1580,30"
+        fill="none" stroke="#8a5a34" stroke-width="2" stroke-linecap="round" stroke-dasharray="1700" stroke-dashoffset="1700"/>
+    </svg>
+  </div>
 
-<h2>Join The Waiting List</h2>
-
-<p>
-The response from the Hadrian's Wall community has been incredible. We're currently developing the collection and inviting early supporters to follow the journey.
-</p>
-
-<!-- PASTE MAILERLITE EMBED CODE BELOW -->
-
-<div style="padding:30px;">
-<div class="ml-embedded" data-form="dZpeT5"></div>
-</div>
-
-<!-- PASTE MAILERLITE EMBED CODE ABOVE -->
-
-<p style="font-size:.9rem;margin-top:20px;opacity:.7;">
-We'll only contact you about TrailMarks updates. Unsubscribe at any time.
-</p>
-
-</div>
-
+  <div class="tags-scroller" id="tagsScroller">
+    <!-- Tag cards injected by JS from LANDMARKS data -->
+  </div>
 </section>
 
-<section class="section">
-
-<div class="faq">
-
-<div class="faq-item">
-<h3>Is TrailMarks available yet?</h3>
-<p>Not yet. We're currently developing the first collection and gathering feedback from walkers and local businesses.</p>
-</div>
-
-<div class="faq-item">
-<h3>Will the pieces be sold individually?</h3>
-<p>That's the plan. Each TrailMark represents a section of the route and forms part of the complete collection.</p>
-</div>
-
-<div class="faq-item">
-<h3>What is the Frontier Medal?</h3>
-<p>An exclusive ninth piece earned by completing the full collection.</p>
-</div>
-
-</div>
-
+<!-- ============================================================
+     DISPLAY FRAME
+     ============================================================ -->
+<section class="frame-section">
+  <div class="wrap frame-grid">
+    <div class="frame-copy reveal">
+      <div class="eyebrow">Display</div>
+      <h2 style="font-size:clamp(2.2rem,4vw,3rem); margin:18px 0 20px; font-style:italic;">Made to be finished, and hung.</h2>
+      <p>Complete the set and TrailMarks becomes a single piece — eight marks mounted together, the route running unbroken from Bowness-on-Solway to Segedunum.</p>
+      <p>Each frame is numbered and dated to your own walk, not a factory run.</p>
+    </div>
+    <div class="frame-mount reveal">
+      <div class="frame-inner" id="frameInner"></div>
+    </div>
+  </div>
 </section>
 
+<!-- ============================================================
+     HOW IT WORKS
+     ============================================================ -->
+<section class="how wrap">
+  <div class="section-head reveal">
+    <div class="eyebrow">The Process</div>
+    <h2>Walk. Collect. Display.</h2>
+    <p>Three stages, in order — because that's the order the wall puts you in.</p>
+  </div>
+  <div class="how-grid reveal">
+    <div class="how-card">
+      <div class="icon">
+        <svg width="34" height="34" viewBox="0 0 34 34" fill="none"><path d="M9 30c2-8 1-13-3-17M9 30c1-6 6-9 10-8 3 1 6-1 7-5M9 30h5" stroke="#8a5a34" stroke-width="1.6" stroke-linecap="round"/><circle cx="21" cy="6" r="3.4" stroke="#8a5a34" stroke-width="1.6"/></svg>
+      </div>
+      <div class="step-num">I</div>
+      <h3>Walk</h3>
+      <p>Follow the Hadrian's Wall Path at your own pace — a weekend section or the full eighty miles, coast to coast.</p>
+    </div>
+    <div class="how-card">
+      <div class="icon">
+        <svg width="34" height="34" viewBox="0 0 34 34" fill="none"><rect x="9" y="4" width="16" height="24" rx="2" stroke="#8a5a34" stroke-width="1.6"/><circle cx="17" cy="10" r="2.4" stroke="#8a5a34" stroke-width="1.6"/></svg>
+      </div>
+      <div class="step-num">II</div>
+      <h3>Collect</h3>
+      <p>Scan the QR code at each landmark to unlock and receive your TrailMark, cast in oxidised bronze.</p>
+    </div>
+    <div class="how-card">
+      <div class="icon">
+        <svg width="34" height="34" viewBox="0 0 34 34" fill="none"><rect x="5" y="5" width="24" height="24" rx="2" stroke="#8a5a34" stroke-width="1.6"/><rect x="10" y="10" width="14" height="14" stroke="#8a5a34" stroke-width="1.2" stroke-dasharray="2 2"/></svg>
+      </div>
+      <div class="step-num">III</div>
+      <h3>Display</h3>
+      <p>Mount your set as it grows, or frame the finished eight — a record of a route you actually walked.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     DIGITAL JOURNEY
+     ============================================================ -->
+<section class="journey">
+  <div class="wrap journey-grid">
+    <div class="journey-copy reveal">
+      <div class="eyebrow">Digital Journey</div>
+      <h2>The wall remembers what the metal can't.</h2>
+      <p>Every TrailMark carries a QR code linking to that section's digital journal — upload photos, log the day's weather, read what other walkers left behind at the same milestone.</p>
+      <ul class="journey-list">
+        <li>Live progress across all eight sections</li>
+        <li>Photo uploads tied to the exact landmark</li>
+        <li>A community gallery for each stretch of wall</li>
+        <li>A digital passport stamped as you go</li>
+      </ul>
+    </div>
+    <div class="phone-mock reveal">
+      <div class="phone-screen">
+        <div class="p-label">Digital Passport</div>
+        <h5>Your route so far</h5>
+        <div class="p-progress">
+          <i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i><i></i><i></i><i></i>
+        </div>
+        <div class="p-label">Community gallery — V. Steel Rigg</div>
+        <div class="p-gallery"><div></div><div></div><div></div><div></div><div></div><div></div></div>
+        <div class="p-stamp">3 of 8 landmarks stamped</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     FRONTIER MEDAL
+     ============================================================ -->
+<section class="medal-section">
+  <div class="medal-glow"></div>
+  <div class="wrap" style="position:relative;">
+    <div class="eyebrow">The Ninth Piece</div>
+    <svg class="medal-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="medalGrad" cx="35%" cy="30%" r="75%">
+          <stop offset="0%" stop-color="#f3dd9c"/>
+          <stop offset="45%" stop-color="#cda23f"/>
+          <stop offset="100%" stop-color="#8a6a24"/>
+        </radialGradient>
+      </defs>
+      <circle cx="100" cy="100" r="92" fill="url(#medalGrad)" stroke="#5f491a" stroke-width="1.5"/>
+      <circle cx="100" cy="100" r="76" fill="none" stroke="#5f491a" stroke-width="1" stroke-dasharray="2 4" opacity="0.6"/>
+      <path d="M100,40 L108,84 L152,84 L117,110 L130,154 L100,128 L70,154 L83,110 L48,84 L92,84 Z" fill="#5f491a" opacity="0.85"/>
+    </svg>
+    <h2 class="reveal">Complete all eight, and the frontier gives you a ninth.</h2>
+    <p class="reveal">The Frontier Medal is not for sale. It's earned — cast once you've collected every TrailMark on the route, and sent only to those who walked the whole line.</p>
+  </div>
+</section>
+
+<!-- ============================================================
+     WAITLIST
+     ============================================================ -->
+<section class="waitlist-section wrap" id="waitlist">
+  <div class="waitlist reveal">
+    <div class="eyebrow">Early Access</div>
+    <h2>Join the waiting list</h2>
+    <p>TrailMarks launches with the Hadrian's Wall collection. Early supporters get first access before the collection goes live to the public.</p>
+
+    <!-- PASTE MAILERLITE EMBED CODE BELOW -->
+    <div class="ml-embed-wrap">
+      <div class="ml-embedded" data-form="dZpeT5"></div>
+    </div>
+    <!-- PASTE MAILERLITE EMBED CODE ABOVE -->
+
+    <p class="gdpr">We'll only ever email you about TrailMarks — launch dates, early access, and nothing else. Unsubscribe at any time. See our privacy policy for how your data is handled.</p>
+  </div>
+</section>
+
+<!-- ============================================================
+     FAQ
+     ============================================================ -->
+<section class="faq-section wrap">
+  <div class="section-head reveal">
+    <div class="eyebrow">Questions</div>
+    <h2>Before you walk</h2>
+  </div>
+  <div class="faq-list reveal" id="faqList">
+    <div class="faq-item">
+      <button class="faq-q"><span>Is TrailMarks available yet?</span><span class="plus">+</span></button>
+      <div class="faq-a"><p>Not yet. We're finishing the collection and casting the first run of TrailMarks with our designer, Amy. The waiting list gets first access ahead of public launch.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q"><span>Do I have to walk in order to collect them?</span><span class="plus">+</span></button>
+      <div class="faq-a"><p>No — you can collect in any order across as many trips as you like. But the frame is designed to complete the story from west to east, Bowness-on-Solway to Segedunum.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q"><span>What are the TrailMarks made from?</span><span class="plus">+</span></button>
+      <div class="faq-a"><p>Solid cast metal with an oxidised bronze finish, designed to wear well and darken naturally over time — like the wall itself.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q"><span>What is the Frontier Medal?</span><span class="plus">+</span></button>
+      <div class="faq-a"><p>An exclusive ninth piece, earned rather than bought — sent only once all eight TrailMarks in a set have been collected.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q"><span>Will TrailMarks expand beyond Hadrian's Wall?</span><span class="plus">+</span></button>
+      <div class="faq-a"><p>Hadrian's Wall is the first collection. If it resonates the way we think it will, other routes are already on the list.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
 <footer>
-
-<h3>TrailMarks</h3>
-
-<p>Collect Extraordinary Journeys</p>
-
+  <div class="wrap">
+    <div class="footer-top">
+      <div>
+        <div class="footer-mark">TrailMarks<span>Collect the route</span></div>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <h5>Collection</h5>
+          <a href="#collection">Hadrian's Wall</a>
+          <a href="#waitlist">Join the waiting list</a>
+        </div>
+        <div class="footer-col">
+          <h5>About</h5>
+          <a href="#">Our story</a>
+          <a href="#">Contact</a>
+        </div>
+        <div class="footer-col">
+          <h5>Legal</h5>
+          <a href="#">Privacy policy</a>
+          <a href="#">Terms</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 TrailMarks. Made in Hexham.</span>
+      <span>Eighty miles. Eight marks. One line.</span>
+    </div>
+  </div>
 </footer>
+
+<script>
+/* ============================================================
+   LANDMARK DATA
+   Swap `icon` (an inline SVG path group) for Amy's real artwork
+   later — everything else (numeral, name, coords) stays as-is.
+   ============================================================ */
+const LANDMARKS = [
+  { num:'I',    name:'Bowness-on-Solway', coords:'54.9536°N 3.3980°W', icon:'water' },
+  { num:'II',   name:'Carlisle',          coords:'54.8951°N 2.9382°W', icon:'fort' },
+  { num:'III',  name:'Lanercost Priory',  coords:'54.9942°N 2.6926°W', icon:'arch' },
+  { num:'IV',   name:'Birdoswald',        coords:'54.9889°N 2.6045°W', icon:'wall' },
+  { num:'V',    name:'Steel Rigg',        coords:'55.0122°N 2.4108°W', icon:'crag' },
+  { num:'VI',   name:'Vindolanda',        coords:'55.0136°N 2.3606°W', icon:'tablet' },
+  { num:'VII',  name:'Chesters Fort',     coords:'55.0247°N 2.1300°W', icon:'column' },
+  { num:'VIII', name:'Segedunum',         coords:'54.9866°N 1.5290°W', icon:'gate' },
+];
+
+/* small linework icons, one per landmark motif */
+const ICONS = {
+  water:  '<path d="M8 26c3-3 5-3 8 0s5 3 8 0s5-3 8 0" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/><path d="M8 20c3-3 5-3 8 0s5 3 8 0s5-3 8 0" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round" opacity=".6"/>',
+  fort:   '<rect x="9" y="16" width="18" height="12" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M9 16v-4h4v4M14 16v-4h4v4M19 16v-4h4v4" stroke="currentColor" stroke-width="1.4" fill="none"/>',
+  arch:   '<path d="M10 28V16a8 8 0 0116 0v12" stroke="currentColor" stroke-width="1.4" fill="none"/><line x1="10" y1="28" x2="26" y2="28" stroke="currentColor" stroke-width="1.4"/>',
+  wall:   '<line x1="7" y1="24" x2="29" y2="24" stroke="currentColor" stroke-width="1.4"/><line x1="7" y1="18" x2="29" y2="18" stroke="currentColor" stroke-width="1.4"/><line x1="11" y1="18" x2="11" y2="24" stroke="currentColor" stroke-width="1.2"/><line x1="18" y1="18" x2="18" y2="24" stroke="currentColor" stroke-width="1.2"/><line x1="25" y1="18" x2="25" y2="24" stroke="currentColor" stroke-width="1.2"/>',
+  crag:   '<path d="M6 28l7-16 5 9 4-6 8 13z" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linejoin="round"/>',
+  tablet: '<rect x="10" y="8" width="14" height="18" rx="1" stroke="currentColor" stroke-width="1.4" fill="none"/><line x1="13" y1="13" x2="21" y2="13" stroke="currentColor" stroke-width="1.1"/><line x1="13" y1="17" x2="21" y2="17" stroke="currentColor" stroke-width="1.1"/><line x1="13" y1="21" x2="18" y2="21" stroke="currentColor" stroke-width="1.1"/>',
+  column: '<line x1="17" y1="6" x2="17" y2="28" stroke="currentColor" stroke-width="1.4"/><line x1="11" y1="6" x2="23" y2="6" stroke="currentColor" stroke-width="1.4"/><line x1="10" y1="28" x2="24" y2="28" stroke="currentColor" stroke-width="1.4"/><line x1="13" y1="10" x2="13" y2="24" stroke="currentColor" stroke-width="1"/><line x1="21" y1="10" x2="21" y2="24" stroke="currentColor" stroke-width="1"/>',
+  gate:   '<path d="M9 28V12l8-6 8 6v16" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linejoin="round"/><line x1="9" y1="20" x2="25" y2="20" stroke="currentColor" stroke-width="1.4"/>'
+};
+
+function tagSVG(landmark, mini){
+  const h = mini ? '' : '';
+  return `
+  <svg viewBox="0 0 100 148" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="metal-${landmark.num}" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#c9b184"/>
+        <stop offset="45%" stop-color="#8a5a34"/>
+        <stop offset="100%" stop-color="#5e3d22"/>
+      </linearGradient>
+    </defs>
+    <path d="M8,4 H92 A4,4 0 0 1 96,8 V128 L50,146 L4,128 V8 A4,4 0 0 1 8,4 Z"
+      fill="url(#metal-${landmark.num})" stroke="#3a2716" stroke-width="1.2"/>
+    <circle cx="50" cy="18" r="4.2" fill="none" stroke="#3a2716" stroke-width="1.4"/>
+    <text x="50" y="42" text-anchor="middle" font-family="Cormorant Garamond, serif" font-style="italic" font-weight="600" font-size="20" fill="#f7f2e7">${landmark.num}</text>
+    <g transform="translate(33,50)" color="#f2e6cf" opacity="0.92">${ICONS[landmark.icon]}</g>
+    <line x1="14" y1="112" x2="86" y2="112" stroke="#f2e6cf" stroke-width="1" opacity="0.5"/>
+    <text x="50" y="126" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="5.4" letter-spacing="0.5" fill="#f2e6cf" opacity="0.85">HADRIAN'S WALL</text>
+  </svg>`;
+}
+
+/* build collection scroller */
+const scroller = document.getElementById('tagsScroller');
+LANDMARKS.forEach(l => {
+  const el = document.createElement('div');
+  el.className = 'tag-card reveal';
+  el.innerHTML = `
+    <div class="tag-metal">${tagSVG(l)}</div>
+    <div class="tag-caption">
+      <div class="num">${l.num}</div>
+      <h4>${l.name}</h4>
+      <div class="coords">${l.coords}</div>
+    </div>`;
+  scroller.appendChild(el);
+});
+
+/* build display frame minis */
+const frameInner = document.getElementById('frameInner');
+LANDMARKS.forEach(l => {
+  const el = document.createElement('div');
+  el.className = 'mini-tag';
+  el.innerHTML = tagSVG(l, true);
+  frameInner.appendChild(el);
+});
+
+/* ============================================================
+   SCROLL REVEAL
+   ============================================================ */
+const revealObserver = new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      entry.target.classList.add('is-visible');
+      revealObserver.unobserve(entry.target);
+    }
+  });
+},{threshold:0.15});
+document.querySelectorAll('.reveal').forEach(el=>revealObserver.observe(el));
+
+/* ============================================================
+   ROUTE LINE DRAW — the signature moment
+   ============================================================ */
+const routeRail = document.querySelector('.route-rail');
+const routeDraw = document.getElementById('routePathDraw');
+function updateRouteDraw(){
+  const rect = routeRail.getBoundingClientRect();
+  const vh = window.innerHeight;
+  const progress = Math.min(1, Math.max(0, (vh - rect.top) / (rect.height + vh * 0.6)));
+  const len = 1700;
+  routeDraw.style.strokeDashoffset = String(len * (1 - progress));
+}
+window.addEventListener('scroll', updateRouteDraw, {passive:true});
+window.addEventListener('resize', updateRouteDraw);
+updateRouteDraw();
+
+/* ============================================================
+   TOP PROGRESS THREAD
+   ============================================================ */
+const progressThread = document.getElementById('progressThread');
+function updateProgressThread(){
+  const doc = document.documentElement;
+  const scrolled = doc.scrollTop / (doc.scrollHeight - doc.clientHeight) * 100;
+  progressThread.style.width = scrolled + '%';
+}
+window.addEventListener('scroll', updateProgressThread, {passive:true});
+updateProgressThread();
+
+/* ============================================================
+   FAQ ACCORDION
+   ============================================================ */
+document.querySelectorAll('.faq-item').forEach(item=>{
+  const q = item.querySelector('.faq-q');
+  const a = item.querySelector('.faq-a');
+  q.addEventListener('click', ()=>{
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(open=>{
+      open.classList.remove('open');
+      open.querySelector('.faq-a').style.maxHeight = null;
+    });
+    if(!isOpen){
+      item.classList.add('open');
+      a.style.maxHeight = a.scrollHeight + 'px';
+    }
+  });
+});
+</script>
 
 </body>
 </html>

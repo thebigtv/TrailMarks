@@ -223,7 +223,7 @@ h1,h2,h3{font-family:var(--serif);font-weight:600;color:var(--ink);}
   width:100%; height:60px; display:block;
 }
 .tags-scroller{
-  display:flex; gap:22px;
+  display:flex; gap:0;
   overflow-x:auto; scroll-snap-type:x proximity;
   padding:10px 32px 30px;
   margin:0 -32px;
@@ -233,7 +233,7 @@ h1,h2,h3{font-family:var(--serif);font-weight:600;color:var(--ink);}
 .tags-scroller::-webkit-scrollbar-thumb{background:var(--line); border-radius:4px;}
 
 .tag-card{
-  flex:0 0 auto; width:206px; scroll-snap-align:start;
+  flex:0 0 auto; width:228px; scroll-snap-align:start;
   display:flex; flex-direction:column; align-items:center;
   transition:transform .5s cubic-bezier(.16,.8,.24,1);
 }
@@ -254,6 +254,10 @@ h1,h2,h3{font-family:var(--serif);font-weight:600;color:var(--ink);}
 }
 .tag-caption .coords{
   font-family:var(--mono); font-size:.62rem; letter-spacing:.06em; color:var(--ink-soft); margin-top:6px; opacity:.75;
+}
+.tag-caption .highlight{
+  font-family:var(--sans); font-style:italic; font-weight:300; font-size:.82rem;
+  color:var(--ink-soft); margin-top:6px; line-height:1.4;
 }
 
 /* ============================================================
@@ -483,7 +487,7 @@ footer{
   <div class="hero-content">
     <div class="hero-eyebrow">Hadrian's Wall Collection — No. I</div>
     <h1>Walk the wall.<br><em>Collect the route.</em></h1>
-    <p class="hero-sub">Eight landmarks. Eight cast-metal TrailMarks. One continuous line across eighty miles of frontier — carried in your pocket, mounted on your wall.</p>
+    <p class="hero-sub">Eight landmarks. Eight cast-metal TrailMarks. One continuous line across eighty-four miles of frontier — carried in your pocket, mounted on your wall.</p>
     <div class="hero-ctas">
       <a href="#waitlist" class="btn btn-primary">Join the waiting list</a>
       <a href="#collection" class="btn btn-ghost">Explore the collection</a>
@@ -496,7 +500,7 @@ footer{
      INTRO STRIP
      ============================================================ -->
 <section class="intro wrap">
-  <div class="intro-coords reveal">54.9800° N &mdash; 2.1500° W · Coast to coast</div>
+  <div class="intro-coords reveal">80 Roman miles, built in AD 122 · 84 modern miles, walked today</div>
   <p class="reveal">Every walker leaves the wall with a story.<br><span>TrailMarks is where that story becomes something you can hold.</span></p>
 </section>
 
@@ -557,7 +561,7 @@ footer{
       </div>
       <div class="step-num">I</div>
       <h3>Walk</h3>
-      <p>Follow the Hadrian's Wall Path at your own pace — a weekend section or the full eighty miles, coast to coast.</p>
+      <p>Follow the Hadrian's Wall Path at your own pace — a weekend section or the full eighty-four miles, coast to coast.</p>
     </div>
     <div class="how-card">
       <div class="icon">
@@ -587,8 +591,9 @@ footer{
       <div class="eyebrow">Digital Journey</div>
       <h2>The wall remembers what the metal can't.</h2>
       <p>Every TrailMark carries a QR code linking to that section's digital journal — upload photos, log the day's weather, read what other walkers left behind at the same milestone.</p>
+      <p>Most people don't collect all eight in one trip. The wall is walked over five or six days, and the toughest ground — Birdoswald through to Chesters — is usually split across two, so your journal fills in gradually, day by day, the way the walk actually happens.</p>
       <ul class="journey-list">
-        <li>Live progress across all eight sections</li>
+        <li>Live progress across all eight landmarks</li>
         <li>Photo uploads tied to the exact landmark</li>
         <li>A community gallery for each stretch of wall</li>
         <li>A digital passport stamped as you go</li>
@@ -714,7 +719,7 @@ footer{
     </div>
     <div class="footer-bottom">
       <span>&copy; 2026 TrailMarks. Made in Hexham.</span>
-      <span>Eighty miles. Eight marks. One line.</span>
+      <span>Eighty-four miles. Eight marks. One line.</span>
     </div>
   </div>
 </footer>
@@ -726,14 +731,14 @@ footer{
    later — everything else (numeral, name, coords) stays as-is.
    ============================================================ */
 const LANDMARKS = [
-  { num:'I',    name:'Bowness-on-Solway', coords:'54.9536°N 3.3980°W', icon:'water' },
-  { num:'II',   name:'Carlisle',          coords:'54.8951°N 2.9382°W', icon:'fort' },
-  { num:'III',  name:'Lanercost Priory',  coords:'54.9942°N 2.6926°W', icon:'arch' },
-  { num:'IV',   name:'Birdoswald',        coords:'54.9889°N 2.6045°W', icon:'wall' },
-  { num:'V',    name:'Steel Rigg',        coords:'55.0122°N 2.4108°W', icon:'crag' },
-  { num:'VI',   name:'Vindolanda',        coords:'55.0136°N 2.3606°W', icon:'tablet' },
-  { num:'VII',  name:'Chesters Fort',     coords:'55.0247°N 2.1300°W', icon:'column' },
-  { num:'VIII', name:'Segedunum',         coords:'54.9866°N 1.5290°W', icon:'gate' },
+  { num:'I',    name:'Bowness-on-Solway',        mile:0,  day:'Day 1',   coords:'54.9536°N 3.3980°W', icon:'water',  highlight:'Where the wall meets the Solway marshes' },
+  { num:'II',   name:'Carlisle',                 mile:15, day:'Day 1',   coords:'54.8951°N 2.9382°W', icon:'fort',   highlight:'Carlisle Castle, above the Border city' },
+  { num:'III',  name:'Lanercost Priory',         mile:31, day:'Day 2',   coords:'54.9903°N 2.6926°W', icon:'arch',   highlight:'Built from stone carried off the wall' },
+  { num:'IV',   name:'Birdoswald',               mile:35, day:'Day 3',   coords:'54.9886°N 2.6039°W', icon:'wall',   highlight:'The longest standing stretch on the trail' },
+  { num:'V',    name:'Steel Rigg',               mile:47, day:'Day 3–4', coords:'55.0122°N 2.4113°W', icon:'crag',   highlight:'The escarpment, looking north into old barbarian country' },
+  { num:'VI',   name:'Vindolanda & Housesteads', mile:50, day:'Day 4',   coords:'55.0122°N 2.3324°W', icon:'tablet', highlight:'Britain\'s best-preserved fort, and the tablets that gave it a voice' },
+  { num:'VII',  name:'Chesters Fort',            mile:58, day:'Day 4–5', coords:'55.0247°N 2.1310°W', icon:'column', highlight:'The best-preserved Roman bathhouse on the wall' },
+  { num:'VIII', name:'Segedunum',                mile:84, day:'Day 6',   coords:'54.9871°N 1.5296°W', icon:'gate',   highlight:'The viewing tower where the wall meets the Tyne' },
 ];
 
 /* small linework icons, one per landmark motif */
@@ -769,9 +774,14 @@ function tagSVG(landmark, mini){
   </svg>`;
 }
 
-/* build collection scroller */
+/* build collection scroller — card gaps scaled to real mile-point
+   distances between landmarks, so the rhythm of the row (tight
+   cluster through the crags, long runs either side) matches the
+   actual trail rather than sitting in a flat, even grid. */
 const scroller = document.getElementById('tagsScroller');
-LANDMARKS.forEach(l => {
+const totalMiles = LANDMARKS[LANDMARKS.length - 1].mile;
+const MIN_GAP = 22, MAX_EXTRA = 130; /* px range added per relative mile-gap */
+LANDMARKS.forEach((l, i) => {
   const el = document.createElement('div');
   el.className = 'tag-card reveal';
   el.innerHTML = `
@@ -779,8 +789,14 @@ LANDMARKS.forEach(l => {
     <div class="tag-caption">
       <div class="num">${l.num}</div>
       <h4>${l.name}</h4>
-      <div class="coords">${l.coords}</div>
+      <div class="highlight">${l.highlight}</div>
+      <div class="coords">Mile ${l.mile} &nbsp;·&nbsp; ${l.day}</div>
     </div>`;
+  if (i > 0) {
+    const gapMiles = l.mile - LANDMARKS[i - 1].mile;
+    const extra = Math.round((gapMiles / totalMiles) * LANDMARKS.length * MAX_EXTRA);
+    el.style.marginLeft = (MIN_GAP + extra) + 'px';
+  }
   scroller.appendChild(el);
 });
 

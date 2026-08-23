@@ -434,6 +434,38 @@ h1,h2,h3{font-family:var(--serif);font-weight:600;color:var(--ink);}
 /* ============================================================
    FOOTER
    ============================================================ */
+/* ============================================================
+   SECTION DETAIL VIEW (routed pages, e.g. /journeys/hadrians-wall/trailmarks/steel-rigg)
+   ============================================================ */
+.detail-hero{
+  padding:180px 0 90px; text-align:center;
+  background:linear-gradient(180deg,#241f19,#3a3327);
+  color:#f7f2e7;
+}
+.detail-hero .eyebrow{color:var(--gold); justify-content:center;}
+.detail-hero .eyebrow::before{background:var(--gold);}
+.detail-hero h1{color:#f7f2e7; font-style:italic; font-size:clamp(2.4rem,5vw,3.6rem); margin:18px 0 10px;}
+.detail-hero .meta{font-family:var(--mono); font-size:.72rem; letter-spacing:.12em; color:#cdbfa2; text-transform:uppercase;}
+.detail-body{max-width:720px; margin:0 auto; padding:80px 32px;}
+.detail-tag-wrap{width:170px; margin:0 auto 40px;}
+.detail-body p{color:var(--ink-soft); font-size:1.05rem; margin-bottom:24px;}
+.detail-proof{
+  background:var(--paper); border-radius:14px; padding:28px 30px; margin:36px 0;
+  border-left:3px solid var(--bronze);
+}
+.detail-proof h4{font-family:var(--mono); font-size:.68rem; letter-spacing:.12em; text-transform:uppercase; color:var(--bronze); margin-bottom:10px;}
+.detail-proof p{color:var(--ink); margin:0; font-size:.95rem;}
+.detail-actions{display:flex; gap:16px; flex-wrap:wrap; margin-top:36px;}
+.btn-disabled{
+  font-family:var(--mono); font-size:.72rem; letter-spacing:.14em; text-transform:uppercase;
+  padding:16px 30px; border-radius:100px; border:1px solid var(--line); color:var(--ink-soft);
+  opacity:.65; cursor:default;
+}
+.detail-back{
+  display:inline-block; margin-bottom:24px; font-family:var(--mono); font-size:.7rem;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--bronze);
+}
+
 footer{
   background:var(--iron-dark); color:#c8c2b3; padding:80px 0 40px;
 }
@@ -471,9 +503,11 @@ footer{
 <div class="progress-thread" id="progressThread"></div>
 
 <nav class="nav">
-  <div class="nav-mark">TrailMarks</div>
-  <a href="#waitlist" class="nav-cta">Join the waiting list</a>
+  <a href="/" data-link class="nav-mark">TrailMarks</a>
+  <a href="#waitlist" class="nav-cta" data-link>Join the waiting list</a>
 </nav>
+
+<div id="homeView">
 
 <!-- ============================================================
      HERO
@@ -690,6 +724,10 @@ footer{
   </div>
 </section>
 
+</div><!-- /#homeView -->
+
+<div id="detailView" style="display:none;"></div>
+
 <!-- ============================================================
      FOOTER
      ============================================================ -->
@@ -726,20 +764,15 @@ footer{
 
 <script>
 /* ============================================================
-   LANDMARK DATA
-   Swap `icon` (an inline SVG path group) for Amy's real artwork
-   later — everything else (numeral, name, coords) stays as-is.
+   DATA SOURCE
+   Today this is a bundled JSON file. Once the Apps Script API
+   (see /apps-script/Code.gs) is deployed, change API_BASE to its
+   URL and everything below keeps working unchanged — same shape.
    ============================================================ */
-const LANDMARKS = [
-  { num:'I',    name:'Bowness-on-Solway',        mile:0,  day:'Day 1',   coords:'54.9536°N 3.3980°W', icon:'water',  highlight:'Where the wall meets the Solway marshes' },
-  { num:'II',   name:'Carlisle',                 mile:15, day:'Day 1',   coords:'54.8951°N 2.9382°W', icon:'fort',   highlight:'Carlisle Castle, above the Border city' },
-  { num:'III',  name:'Lanercost Priory',         mile:31, day:'Day 2',   coords:'54.9903°N 2.6926°W', icon:'arch',   highlight:'Built from stone carried off the wall' },
-  { num:'IV',   name:'Birdoswald',               mile:35, day:'Day 3',   coords:'54.9886°N 2.6039°W', icon:'wall',   highlight:'The longest standing stretch on the trail' },
-  { num:'V',    name:'Steel Rigg',               mile:47, day:'Day 3–4', coords:'55.0122°N 2.4113°W', icon:'crag',   highlight:'The escarpment, looking north into old barbarian country' },
-  { num:'VI',   name:'Vindolanda & Housesteads', mile:50, day:'Day 4',   coords:'55.0122°N 2.3324°W', icon:'tablet', highlight:'Britain\'s best-preserved fort, and the tablets that gave it a voice' },
-  { num:'VII',  name:'Chesters Fort',            mile:58, day:'Day 4–5', coords:'55.0247°N 2.1310°W', icon:'column', highlight:'The best-preserved Roman bathhouse on the wall' },
-  { num:'VIII', name:'Segedunum',                mile:84, day:'Day 6',   coords:'54.9871°N 1.5296°W', icon:'gate',   highlight:'The viewing tower where the wall meets the Tyne' },
-];
+const API_BASE = null; // e.g. 'https://script.google.com/macros/s/XXXX/exec'
+const DATA_URL = API_BASE ? `${API_BASE}?resource=sections` : 'data/sections.json';
+
+let LANDMARKS = [];
 
 /* small linework icons, one per landmark motif */
 const ICONS = {
@@ -754,7 +787,6 @@ const ICONS = {
 };
 
 function tagSVG(landmark, mini){
-  const h = mini ? '' : '';
   return `
   <svg viewBox="0 0 100 148" xmlns="http://www.w3.org/2000/svg">
     <defs>
@@ -778,36 +810,45 @@ function tagSVG(landmark, mini){
    distances between landmarks, so the rhythm of the row (tight
    cluster through the crags, long runs either side) matches the
    actual trail rather than sitting in a flat, even grid. */
-const scroller = document.getElementById('tagsScroller');
-const totalMiles = LANDMARKS[LANDMARKS.length - 1].mile;
-const MIN_GAP = 22, MAX_EXTRA = 130; /* px range added per relative mile-gap */
-LANDMARKS.forEach((l, i) => {
-  const el = document.createElement('div');
-  el.className = 'tag-card reveal';
-  el.innerHTML = `
-    <div class="tag-metal">${tagSVG(l)}</div>
-    <div class="tag-caption">
-      <div class="num">${l.num}</div>
-      <h4>${l.name}</h4>
-      <div class="highlight">${l.highlight}</div>
-      <div class="coords">Mile ${l.mile} &nbsp;·&nbsp; ${l.day}</div>
-    </div>`;
-  if (i > 0) {
-    const gapMiles = l.mile - LANDMARKS[i - 1].mile;
-    const extra = Math.round((gapMiles / totalMiles) * LANDMARKS.length * MAX_EXTRA);
-    el.style.marginLeft = (MIN_GAP + extra) + 'px';
-  }
-  scroller.appendChild(el);
-});
+function buildCollection(){
+  const scroller = document.getElementById('tagsScroller');
+  scroller.innerHTML = '';
+  const totalMiles = LANDMARKS[LANDMARKS.length - 1].mile;
+  const MIN_GAP = 22, MAX_EXTRA = 130;
+  LANDMARKS.forEach((l, i) => {
+    const el = document.createElement('a');
+    el.href = `/journeys/hadrians-wall/trailmarks/${l.slug}`;
+    el.setAttribute('data-link', '');
+    el.className = 'tag-card reveal';
+    el.innerHTML = `
+      <div class="tag-metal">${tagSVG(l)}</div>
+      <div class="tag-caption">
+        <div class="num">${l.num}</div>
+        <h4>${l.name}</h4>
+        <div class="highlight">${l.highlight}</div>
+        <div class="coords">Mile ${l.mile} &nbsp;·&nbsp; ${l.day}</div>
+      </div>`;
+    if (i > 0) {
+      const gapMiles = l.mile - LANDMARKS[i - 1].mile;
+      const extra = Math.round((gapMiles / totalMiles) * LANDMARKS.length * MAX_EXTRA);
+      el.style.marginLeft = (MIN_GAP + extra) + 'px';
+    }
+    scroller.appendChild(el);
+    revealObserver.observe(el);
+  });
+}
 
 /* build display frame minis */
-const frameInner = document.getElementById('frameInner');
-LANDMARKS.forEach(l => {
-  const el = document.createElement('div');
-  el.className = 'mini-tag';
-  el.innerHTML = tagSVG(l, true);
-  frameInner.appendChild(el);
-});
+function buildFrame(){
+  const frameInner = document.getElementById('frameInner');
+  frameInner.innerHTML = '';
+  LANDMARKS.forEach(l => {
+    const el = document.createElement('div');
+    el.className = 'mini-tag';
+    el.innerHTML = tagSVG(l, true);
+    frameInner.appendChild(el);
+  });
+}
 
 /* ============================================================
    SCROLL REVEAL
@@ -868,6 +909,104 @@ document.querySelectorAll('.faq-item').forEach(item=>{
     }
   });
 });
+
+/* ============================================================
+   ROUTER
+   Maps clean URLs to either the marketing homepage or a single
+   TrailMark detail page. Works via History API + a Netlify
+   _redirects rule (see /_redirects) so hard refreshes and shared
+   links both resolve correctly, not just in-app navigation.
+   ============================================================ */
+const homeView = document.getElementById('homeView');
+const detailView = document.getElementById('detailView');
+const SECTION_PATH = /^\/journeys\/hadrians-wall\/trailmarks\/([a-z0-9-]+)\/?$/;
+
+function renderDetail(section){
+  detailView.innerHTML = `
+    <div class="detail-hero">
+      <div class="wrap">
+        <a href="/" data-link class="detail-back">&larr; All TrailMarks</a>
+        <div class="eyebrow">TrailMark ${section.num} &middot; Hadrian's Wall</div>
+        <h1>${section.name}</h1>
+        <div class="meta">Mile ${section.mile} &nbsp;&middot;&nbsp; ${section.day}</div>
+      </div>
+    </div>
+    <div class="detail-body">
+      <div class="detail-tag-wrap">${tagSVG(section)}</div>
+      <p>${section.description}</p>
+      <div class="detail-proof">
+        <h4>How to earn this TrailMark</h4>
+        <p>${section.proof_requirement}</p>
+      </div>
+      <div class="detail-actions">
+        <span class="btn-disabled">Submit proof — coming soon</span>
+        <span class="btn-disabled">Buy — unlocks once earned</span>
+      </div>
+    </div>`;
+  homeView.style.display = 'none';
+  detailView.style.display = 'block';
+  window.scrollTo(0, 0);
+}
+
+function renderHome(){
+  detailView.style.display = 'none';
+  homeView.style.display = '';
+}
+
+function route(){
+  const path = window.location.pathname;
+  const match = path.match(SECTION_PATH);
+  if (match) {
+    const section = LANDMARKS.find(l => l.slug === match[1]);
+    if (section) { renderDetail(section); return; }
+  }
+  renderHome();
+}
+
+/* intercept clicks on any [data-link] so navigation stays client-side */
+document.addEventListener('click', (e) => {
+  const link = e.target.closest('[data-link]');
+  if (!link) return;
+  const href = link.getAttribute('href');
+  if (!href) return;
+  if (href.startsWith('#')) {
+    if (detailView.style.display !== 'none') {
+      e.preventDefault();
+      window.history.pushState({}, '', '/' + href);
+      route();
+      requestAnimationFrame(() => document.querySelector(href)?.scrollIntoView());
+    }
+    return; // already on home — let the native anchor scroll happen
+  }
+  e.preventDefault();
+  window.history.pushState({}, '', href);
+  route();
+});
+window.addEventListener('popstate', route);
+
+/* ============================================================
+   INIT — load section data, build the UI, then resolve the route
+   ============================================================ */
+async function init(){
+  try {
+    const res = await fetch(DATA_URL);
+    const raw = await res.json();
+    LANDMARKS = raw.map(s => ({
+      num: s.number, name: s.name, slug: s.slug, mile: s.mile, day: s.day,
+      coords: s.coords, icon: s.icon, highlight: s.highlight,
+      description: s.description, proof_requirement: s.proof_requirement,
+    }));
+  } catch (err) {
+    console.error('Could not load TrailMarks data', err);
+    LANDMARKS = [];
+  }
+  buildCollection();
+  buildFrame();
+  updateRouteDraw();
+  route();
+}
+init();
+
 </script>
 
 </body>
